@@ -161,6 +161,9 @@ where
         let span = info_span!(
             "RPC",
             rpc.trace_id = %request.context.trace_id(),
+            rpc.system = "tarpc",
+            rpc.service = tracing::field::Empty,
+            rpc.method = tracing::field::Empty,
             otel.kind = "server",
             otel.name = tracing::field::Empty,
         );
@@ -633,7 +636,12 @@ impl<Req, Res> InFlightRequest<Req, Res> {
                 },
         } = self;
         let method = serve.method(&message);
-        span.record("otel.name", &method.unwrap_or(""));
+        if let Some(method) = method {
+            span.record("otel.name", &method);
+            let mut split_method = method.split('.');
+            span.record("rpc.service", &split_method.next().unwrap_or_default());
+            span.record("rpc.method", &split_method.next().unwrap_or_default());
+        }
         let _ = Abortable::new(
             async move {
                 tracing::info!("BeginRequest");

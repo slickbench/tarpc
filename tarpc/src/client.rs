@@ -118,6 +118,9 @@ impl<Req, Resp> Channel<Req, Resp> {
         skip(self, ctx, request_name, request),
         fields(
             rpc.trace_id = tracing::field::Empty,
+            rpc.system = "tarpc",
+            rpc.service = tracing::field::Empty,
+            rpc.method = tracing::field::Empty,
             otel.kind = "client",
             otel.name = request_name)
         )]
@@ -135,6 +138,10 @@ impl<Req, Resp> Channel<Req, Resp> {
             ctx.trace_context.new_child()
         });
         span.record("rpc.trace_id", &tracing::field::display(ctx.trace_id()));
+        let mut split_method = request_name.split('.');
+        span.record("rpc.service", &split_method.next().unwrap_or_default());
+        span.record("rpc.method", &split_method.next().unwrap_or_default());
+
         let (response_completion, mut response) = oneshot::channel();
         let request_id =
             u64::try_from(self.next_request_id.fetch_add(1, Ordering::Relaxed)).unwrap();
