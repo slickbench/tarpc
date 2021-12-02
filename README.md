@@ -33,7 +33,7 @@ returns the value produced by the other process.
 
 RPC frameworks are a fundamental building block of most microservices-oriented
 architectures. Two well-known ones are [gRPC](http://www.grpc.io) and
-[Cap'n Proto](https://capnproto.org/).
+[Cap’n Proto](https://capnproto.org/).
 
 tarpc differentiates itself from other RPC frameworks by defining the schema in code,
 rather than in a separate language such as .proto. This means there's no separate compilation
@@ -67,7 +67,7 @@ Some other features of tarpc:
 Add to your `Cargo.toml` dependencies:
 
 ```toml
-tarpc = "0.26"
+tarpc = "0.27"
 ```
 
 The `tarpc::service` attribute expands to a collection of items that form an rpc service.
@@ -81,8 +81,8 @@ your `Cargo.toml`:
 
 ```toml
 anyhow = "1.0"
-futures = "1.0"
-tarpc = { version = "0.26", features = ["tokio1"] }
+futures = "0.3"
+tarpc = { version = "0.27", features = ["tokio1"] }
 tokio = { version = "1.0", features = ["macros"] }
 ```
 
@@ -100,7 +100,7 @@ use futures::{
 };
 use tarpc::{
     client, context,
-    server::{self, incoming::Incoming},
+    server::{self, incoming::Incoming, Channel},
 };
 
 // This is the service definition. It looks a lot like a trait definition.

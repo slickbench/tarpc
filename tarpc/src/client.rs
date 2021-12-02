@@ -298,6 +298,9 @@ where
     /// Could not flush the transport.
     #[error("could not flush the transport")]
     Flush(#[source] E),
+    /// Could not close the write end of the transport.
+    #[error("could not close the write end of the transport")]
+    Close(#[source] E),
     /// Could not poll expired requests.
     #[error("could not poll expired requests")]
     Timer(#[source] tokio::time::error::Error),
@@ -340,6 +343,15 @@ where
         self.transport_pin_mut()
             .poll_flush(cx)
             .map_err(ChannelError::Flush)
+    }
+
+    fn poll_close<'a>(
+        self: &'a mut Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), ChannelError<C::Error>>> {
+        self.transport_pin_mut()
+            .poll_close(cx)
+            .map_err(ChannelError::Close)
     }
 
     fn canceled_requests_mut<'a>(self: &'a mut Pin<&mut Self>) -> &'a mut CanceledRequests {
@@ -401,7 +413,7 @@ where
 
         match (pending_requests_status, canceled_requests_status) {
             (ReceiverStatus::Closed, ReceiverStatus::Closed) => {
-                ready!(self.poll_flush(cx)?);
+                ready!(self.poll_close(cx)?);
                 Poll::Ready(None)
             }
             (ReceiverStatus::Pending, _) | (_, ReceiverStatus::Pending) => {

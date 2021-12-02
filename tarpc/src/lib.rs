@@ -27,7 +27,7 @@
 //! process, and no context switching between different languages.
 //!
 //! Some other features of tarpc:
-//! - Pluggable transport: any type impling `Stream<Item = Request> + Sink<Response>` can be
+//! - Pluggable transport: any type implementing `Stream<Item = Request> + Sink<Response>` can be
 //!   used as a transport to connect the client and server.
 //! - `Send + 'static` optional: if the transport doesn't require it, neither does tarpc!
 //! - Cascading cancellation: dropping a request will send a cancellation message to the server.
@@ -42,7 +42,7 @@
 //!   [tracing](https://github.com/tokio-rs/tracing) primitives extended with
 //!   [OpenTelemetry](https://opentelemetry.io/) traces. Using a compatible tracing subscriber like
 //!   [Jaeger](https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-jaeger),
-//!   each RPC can be traced through the client, server, amd other dependencies downstream of the
+//!   each RPC can be traced through the client, server, and other dependencies downstream of the
 //!   server. Even for applications not connected to a distributed tracing collector, the
 //!   instrumentation can also be ingested by regular loggers like
 //!   [env_logger](https://github.com/env-logger-rs/env_logger/).
@@ -54,7 +54,7 @@
 //! Add to your `Cargo.toml` dependencies:
 //!
 //! ```toml
-//! tarpc = "0.26"
+//! tarpc = "0.27"
 //! ```
 //!
 //! The `tarpc::service` attribute expands to a collection of items that form an rpc service.
@@ -68,8 +68,8 @@
 //!
 //! ```toml
 //! anyhow = "1.0"
-//! futures = "1.0"
-//! tarpc = { version = "0.26", features = ["tokio1"] }
+//! futures = "0.3"
+//! tarpc = { version = "0.27", features = ["tokio1"] }
 //! tokio = { version = "1.0", features = ["macros"] }
 //! ```
 //!
@@ -88,7 +88,7 @@
 //! };
 //! use tarpc::{
 //!     client, context,
-//!     server::{self, incoming::Incoming},
+//!     server::{self, incoming::Incoming, Channel},
 //! };
 //!
 //! // This is the service definition. It looks a lot like a trait definition.

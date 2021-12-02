@@ -336,6 +336,7 @@ where
     type Item = Result<TrackedRequest<Req>, ChannelError<T::Error>>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+        #[derive(Debug)]
         enum ReceiverStatus {
             Ready,
             Pending,
@@ -391,6 +392,11 @@ where
                 Poll::Pending => Pending,
             };
 
+            tracing::trace!(
+                "Expired requests: {:?}, Inbound: {:?}",
+                expiration_status,
+                request_status
+            );
             match (expiration_status, request_status) {
                 (Ready, _) | (_, Ready) => continue,
                 (Closed, Closed) => return Poll::Ready(None),
