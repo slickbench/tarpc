@@ -81,14 +81,10 @@ impl<C, D> fmt::Debug for NewClient<C, D> {
     }
 }
 
-#[allow(dead_code)]
-#[allow(clippy::no_effect)]
-const CHECK_USIZE: () = {
-    if std::mem::size_of::<usize>() > std::mem::size_of::<u64>() {
-        // TODO: replace this with panic!() as soon as RFC 2345 gets stabilized
-        ["usize is too big to fit in u64"][42];
-    }
-};
+const _CHECK_USIZE: () = assert!(
+    std::mem::size_of::<usize>() <= std::mem::size_of::<u64>(),
+    "usize is too big to fit in u64"
+);
 
 /// Handles communication from the client to request dispatch.
 #[derive(Debug)]
@@ -179,7 +175,8 @@ struct ResponseGuard<'a, Resp> {
 
 /// An error that can occur in the processing of an RPC. This is not request-specific errors but
 /// rather cross-cutting errors that can always occur.
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde1", derive(serde::Serialize, serde::Deserialize))]
 pub enum RpcError {
     /// The client disconnected from the server.
     #[error("the client disconnected from the server")]
